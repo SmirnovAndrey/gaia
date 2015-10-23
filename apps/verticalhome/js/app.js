@@ -1,5 +1,5 @@
 'use strict';
-/* global ItemStore, LazyLoader, Configurator, groupEditor */
+/* global ItemStore, LazyLoader, Configurator, groupEditor, PinNavigation */
 /* global requestAnimationFrame */
 
 (function(exports) {
@@ -137,7 +137,13 @@
       this.pinManager = new PinAppManager();
       window.addEventListener('pin-app-loaded', function(e) {
         this.pinManager.init();
+
+        this.pinNavigation = new PinAppNavigation(document.getElementById('pin-apps-list'));
+        this.pinNavigation.points_selector = '#pin-apps-list .pin-app-item';
       }.bind(this));
+
+
+
     },
 
     renderGrid: function() {
@@ -371,6 +377,9 @@
         // receives a home button press.
         case 'hashchange':
           // The group editor UI will be hidden by itself so returning...
+
+          this.pinNavigation.reset();
+
           var editor = exports.groupEditor;
           if (editor && !editor.hidden) {
             return;
