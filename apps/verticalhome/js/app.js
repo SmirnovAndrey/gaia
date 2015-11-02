@@ -140,6 +140,143 @@
       }.bind(this));
 
     },
+    pin2MainScreen: function(){
+          var selectedMoreAppItem = document.querySelector('#more-apps-screen .selected');
+          var selectedMoreAppItem_icon = selectedMoreAppItem.getAttribute("data-test-icon");
+          var selectedMoreAppItem_data_identifier = selectedMoreAppItem.getAttribute("data-identifier");
+          var selectedMoreAppItem_title = selectedMoreAppItem.querySelector('span.title').innerHTML;
+          var pinAppsList = document.querySelector('#pin-apps-list');
+          var newPinAppItem = document.createElement('div');
+          var notif = document.getElementById("blinknotif");
+          var maxDataIndex = document.querySelectorAll('#pin-apps-list .pin-app-item').length;
+
+            //document.querySelector('.pin-app-item.selected').classList.remove('selected');
+            //document.querySelector('.pin-app-item.selected').classList.remove('selected');
+
+            newPinAppItem.className = 'pin-app-item';
+            newPinAppItem.classList.add('selected');
+            newPinAppItem.setAttribute('data-manifesturl', selectedMoreAppItem_data_identifier);
+            newPinAppItem.setAttribute('data-index', maxDataIndex-1); // -1 becouse we don`t need #moreapps link;
+            newPinAppItem.innerHTML = '<img src="' + selectedMoreAppItem_icon + '" style="visibility: visible;" class="pin-app-icon">'+
+            '<br><span style="visibility: visible;" class="title">' + selectedMoreAppItem_title + '</span></div>';
+
+          try{
+            var child = pinAppsList.appendChild(newPinAppItem);
+            app.pinNavigation.reset();
+
+            var MoreAppsNodeList = Array.prototype.slice.call( document.querySelector('#more-apps-screen #icons').children );
+            // get index of selected element
+            this.grid.removeItemByIndex(MoreAppsNodeList.indexOf( selectedMoreAppItem )-1);
+            this.renderGrid();
+
+            if (selectedMoreAppItem.parentNode) {
+              selectedMoreAppItem.parentNode.removeChild(selectedMoreAppItem);
+            }
+
+            this.itemStore.savePinAppItem(app.getAppByURL(selectedMoreAppItem_data_identifier));
+            this.itemStore.save(this.grid.getItems());
+            this.backToMainScreen();
+
+            notif.style.display = 'block';
+            notif.innerHTML = 'App added to Home Screen';
+
+            setTimeout(function() {
+              blinknotif.style.display = "none";
+            }, 3000);
+
+            app.pinNavigation.refresh();
+          }
+          catch (error) {
+            console.error('error savePinAppItem ' + error);
+          }
+
+          //child.scrollIntoView(); // move to added app (apply call)
+       // }
+      },//.bind(this)),
+
+    pin2MoreApp: function(){
+
+          var selectedPinAppItem = document.querySelector('#pin-apps-list .selected'); // parent
+          var selectedPinupAppItem_icon = selectedPinAppItem.getAttribute("data-test-icon");
+          var selectedPinupAppItem_data_identifier = selectedPinAppItem.getAttribute("data-manifesturl");
+          var selectedPinupAppItem_title = selectedPinAppItem.querySelector('span.title').innerHTML;
+          var pinAppsList = document.querySelector('#more-apps-screen #icons');
+          var newPinAppItem = document.createElement('div');
+          var notif = document.getElementById("blinknotif");
+
+            newPinAppItem.className = 'icon';
+            newPinAppItem.classList.add('selected');
+            newPinAppItem.setAttribute('data-identifier', selectedPinupAppItem_data_identifier);
+            newPinAppItem.setAttribute('data-test-icon', selectedPinupAppItem_icon);
+            newPinAppItem.setAttribute('data-app-state', 'ready');
+            newPinAppItem.setAttribute('style', 'width: 100px; height: 90px; background-size: 84px auto; background-image: url(&quot;blob:app://verticalhome.gaiamobile.org/793cb8b7-9f9f-43f5-828e-4b7cd61bab1d&quot;); scale(1);');
+            newPinAppItem.setAttribute('data-background-image', 'blob:app://verticalhome.gaiamobile.org/793cb8b7-9f9f-43f5-828e-4b7cd61bab1d');
+
+            newPinAppItem.innerHTML = '<p style="margin-top: 82px;"><span dir="auto" class="title">' + selectedPinupAppItem_title + '</span>';
+
+            app.pinNavigation.reset();
+            var child = pinAppsList.appendChild(newPinAppItem);
+          //this.grid.appendItem(newPinAppItem);
+          //this.renderGrid();
+
+          //var MoreAppsNodeList = Array.prototype.slice.call( document.querySelector('#more-apps-screen #icons').children );
+          // get index of selected element
+          //this.grid.removeItemByIndex(MoreAppsNodeList.indexOf( selectedPinAppItem )-1);
+          //this.renderGrid();
+
+          if (selectedPinAppItem.parentNode) {
+            selectedPinAppItem.parentNode.removeChild(selectedPinAppItem);
+          }
+          app.itemStore.applicationSource.addIconToGrid(app.pinManager.items[selectedPinAppItem.getAttribute("data-index")].targetApp);
+          app.pinNavigation.refresh();
+
+          this.showMoreApps();
+          notif.style.display = 'block';
+          notif.innerHTML = 'App removed from Homescreen and moved to "More apps"';
+          setTimeout(function() {
+            blinknotif.style.display = "none";
+          }, 3000);
+
+         //child.scrollIntoView(); // move to added app (apply call)
+       // }
+
+      },
+    personalize: function(){
+      document.getElementById('main-screen').classList.add('personalise_mode');
+      var plusButton = document.createElement('div');
+
+        plusButton.classList.add('pin-app-item');
+        plusButton.setAttribute('id', 'addFromMoreApps');
+        plusButton.setAttribute('data-index', '998');
+        plusButton.innerHTML= '<span style="visibility: visible;" class="title">+</span>';
+        document.getElementById('pin-apps-list').appendChild(plusButton);
+    },
+
+    endPersonalize: function(){
+      var plusButton = document.getElementById('addFromMoreApps');
+      document.getElementById('main-screen').classList.remove('personalise_mode');
+      if (plusButton.parentNode) {
+              plusButton.parentNode.removeChild(plusButton);
+      }
+
+    },
+
+    rearrange: function(){
+      document.getElementById('main-screen').classList.add('rearrange_mode');
+    },
+
+    exitRearrange: function(){
+      document.getElementById('main-screen').classList.remove('rearrange_mode');
+    },
+
+    enterMoreAppsPersonalise: function(){
+      this.showMoreApps();
+      document.getElementById('more-apps-screen').classList.add('personalise_mode');
+    },
+
+    exitMoreAppsPersonalise: function(){
+      document.getElementById('more-apps-screen').classList.remove('personalise_mode');
+    },
 
     renderGrid: function() {
       this.grid.render();

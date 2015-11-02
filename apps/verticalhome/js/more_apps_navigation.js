@@ -5,6 +5,7 @@
     controls: null,
     selectedElemIndex: 0,
     selectElement: null,
+    personalise_mode: false,
 
     init: function () {
       this.controls = app.grid.getItems();
@@ -27,6 +28,7 @@
     },
 
     handleEvent: function (e) {
+      personalise_mode: document.getElementById('more-apps-screen').classList.contains('personalise_mode');
       var deltaIndex = 0;
       e.preventDefault();
       switch (e.key) {
@@ -66,6 +68,12 @@
         case 'Backspace':
           app.hideMoreApps();
           break;
+
+        case 'c':
+        if(this.personalise_mode){
+          app.pin2MainScreen();
+        }
+        break;
       }
     },
 

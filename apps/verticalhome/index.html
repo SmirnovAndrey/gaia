@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="style/css/pin_apps.css">
     <link rel="stylesheet" href="style/css/search.css">
     <link rel="stylesheet" href="shared/elements/gaia_grid_rs/style/external.css">
+    <link rel="stylesheet" href="shared/style/sk_key_utils.css">
+
     <meta name="defaultLanguage" content="en-US">
     <meta name="availableLanguages" content="ar, en-US, fr, zh-TW">
     <link rel="localization" href="locales/homescreen.{locale}.properties">
@@ -39,6 +41,7 @@
     <!-- <script type="text/javascript" src="js/wallpaper.js"></script> -->
 
     <script defer src="js/sources/application.js"></script>
+    <script defer src="shared/js/sk_key_utils.js"></script>
 
     <script defer src="js/app_manager.js"></script>
     <script defer src="js/statusbar.js"></script>
@@ -124,5 +127,16 @@
         </form>
       </section>-->
     </section>
+    <div role="softkey">
+        <button type="button" accesskey="a">Back</button>
+        <button type="button" accesskey="s">OK</button>
+        <button type="button" accesskey="d" contextmenu="menu1">Options</button>
+
+        <menu id="menu1" header="Header Text">
+            <menuitem data-menuid="option1" label="Add to Homescreen"
+            icon="img/icons/icon48x48.png"></menuitem>
+        </menu>
+    </div>
+    <div id='blinknotif'></div>
   </body>
 </html>

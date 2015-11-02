@@ -116,5 +116,6 @@
     }
   };
 
-  exports.PinAppManager = PinAppManager;
+exports.PinAppManager = PinAppManager;
+
 })(window);

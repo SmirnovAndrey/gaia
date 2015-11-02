@@ -22,6 +22,7 @@
     this.elemList = list;
     window.removeEventListener('keydown', this);
     window.addEventListener('keydown', this);
+
   };
 
 
@@ -33,6 +34,8 @@
     selectedElemIndex: 0,
     elemList: null,
     prevVerticalKey: null,
+    personalise_mode: false,
+    rearrange_mode: false,
 
     middleElem: false,
 
@@ -114,6 +117,9 @@
      */
     handleEvent: function(e) {
 
+      personalise_mode: document.getElementById('main-screen').classList.contains('personalise_mode');
+      rearrange_mode: document.getElementById('main-screen').classList.contains('rearrange_mode');
+
       function cycleElements(index) {
 
         var removed = this.elements.splice(-index, index);
@@ -157,6 +163,7 @@
 
       switch(e.key) {
         case 'ArrowUp':
+          if(this.rearrange_mode){
 
           preVerticalNavigation.call(this);
           document.getElementById('clock').classList.add('not-visible');
@@ -167,44 +174,51 @@
             this.elemList.style.top = '-6rem';
             this.elemList.dataset.scrollup = this.elemList.style.top;
           }
-
-          var deltaElemsToStartScroll = 3;
-
-          this.elements[this.selectedElemIndex].classList.remove('selected');
-          if (this.selectedElemIndex >= 0 && this.selectedElemIndex < 4) {
-
-            cycleElements.call(this, (deltaElemsToStartScroll - this.selectedElemIndex));
-            this.selectedElemIndex += deltaElemsToStartScroll - this.selectedElemIndex;
-
-            this.selectedElemIndex--;
-            this.elements[this.selectedElemIndex].classList.add('selected');
-
-          } else {
-
-            this.selectedElemIndex--;
-            this.elements[this.selectedElemIndex].classList.add('selected');
-
-            if (this.selectedElemIndex > 3) {
-              this.elemList.style.top = parseFloat(this.elemList.style.top) + 6 + 'rem';
+          else{
+            if (this.elemList.dataset.scrollup) {
+              this.elemList.style.top = this.elemList.dataset.scrollup;
+            } else {
+              this.elemList.style.top = '-6rem';
               this.elemList.dataset.scrollup = this.elemList.style.top;
             }
 
+            var deltaElemsToStartScroll = 3;
+
+            this.elements[this.selectedElemIndex].classList.remove('selected');
+            if (this.selectedElemIndex >= 0 && this.selectedElemIndex < 4) {
+
+              cycleElements.call(this, (deltaElemsToStartScroll - this.selectedElemIndex));
+              this.selectedElemIndex += deltaElemsToStartScroll - this.selectedElemIndex;
+
+              this.selectedElemIndex--;
+              this.elements[this.selectedElemIndex].classList.add('selected');
+
+            } else {
+
+              this.selectedElemIndex--;
+              this.elements[this.selectedElemIndex].classList.add('selected');
+
+              if (this.selectedElemIndex > 3) {
+                this.elemList.style.top = parseFloat(this.elemList.style.top) + 6 + 'rem';
+                this.elemList.dataset.scrollup = this.elemList.style.top;
+              }
+
+            }
+
+            var lastElem = this.elements[this.elements.length - 1];
+            var clonedElem = lastElem.cloneNode(true);
+
+
+            this.elemList.insertBefore(clonedElem, this.elements[0]);
+            this.elements.splice(0, 0, clonedElem);
+            this.elements[0].classList.add('out-focus');
+            this.selectedElemIndex++;
+
+            lastElem.classList.add('removed');
+            this.elements.splice(-1, 1);
+
+            this.prevVerticalKey = 'up';
           }
-
-          var lastElem = this.elements[this.elements.length - 1];
-          var clonedElem = lastElem.cloneNode(true);
-
-
-          this.elemList.insertBefore(clonedElem, this.elements[0]);
-          this.elements.splice(0, 0, clonedElem);
-          this.elements[0].classList.add('out-focus');
-          this.selectedElemIndex++;
-
-          lastElem.classList.add('removed');
-          this.elements.splice(-1, 1);
-
-          this.prevVerticalKey = 'up';
-
 
           break;
 
@@ -252,6 +266,15 @@
           break;
 
         case 'Accept':
+          if(this.personalize_mode){
+             if(this.elemList.getAttribute('id') == 'addFromMoreApps'){
+                app.enterMoreAppsPersonalise();
+             }
+          }
+          else{
+            window.removeEventListener('keydown', this);
+            app.getAppByURL(this.elements[this.selectedElemIndex].dataset.manifesturl).launch();
+          }
 
           window.removeEventListener('keydown', this);
 
@@ -262,6 +285,28 @@
           }
 
           break;
+        case 'q':
+          app.personalize();
+        break;
+
+        case 'w':
+          app.endPersonalize();
+        break;
+
+        case 'r':
+          app.rearrange();
+        break;
+
+        case 't':
+          app.exitRearrange();
+        break;
+
+        case 'c':
+          if(this.personalise_mode){
+            app.pin2MoreApp();
+          }
+        break;
+
       }
 
     },
