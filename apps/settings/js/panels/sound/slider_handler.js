@@ -5,6 +5,9 @@
  *
  * @module SliderHandler
  */
+
+ /* global IACHandler */
+
 define(function(require) {
   'use strict';
 
@@ -19,6 +22,29 @@ define(function(require) {
     'notification': BASESHAREURL + 'ringtones/ringer_firefox.opus',
     'alarm': BASESHAREURL + 'alarms/ac_awake.opus'
   };
+
+  var RemoteControl = {
+    playStatus: 'STOPPED',
+
+    handleEvent: function ls_handleEvent(event) {
+      this.playStatus = event.detail.data.playStatus;
+    },
+
+    stopMusic: function ls_stopMusic() {
+    var port = IACHandler ? IACHandler.getPort('mediacomms') : null;
+      if (!port) {
+        console.error('No port for MediaPlaybackWidget');
+        return;
+      }
+      port.postMessage( { command: 'pause' } );
+      return;
+    }
+  };
+
+  window.addEventListener('iac-mediacomms', function(event){
+    RemoteControl.handleEvent(event);
+  });
+
   var TONEKEYS = {
     'content': 'media.ringtone',
     'notification': 'dialer.ringtone',
@@ -191,9 +217,18 @@ define(function(require) {
       this._stopTone();
       SettingsListener.unobserve(this._channelKey, this._boundSetSliderValue);
 
-      this._getToneBlob(function(blob) {
-        this._setupTone(blob);
-      }.bind(this));
+      if( RemoteControl.playStatus == 'PAUSED' ||
+          RemoteControl.playStatus == 'STOPPED' ){
+        this._getToneBlob(function(blob) {
+          this._setupTone(blob);
+        }.bind(this));
+      }
+      else{
+        // don`t stop music if manage media volume
+        if(this._toneKey != "media.ringtone"){
+          RemoteControl.stopMusic();
+        }
+      }
     },
 
     /**
